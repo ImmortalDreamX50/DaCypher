@@ -1,0 +1,17 @@
+# Firebase credentials
+*.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/
+
+# OS files
+.DS_Store
+cipher-d2ffa-firebase-adminsdk-*.json
+data/
+*.pyc
+__pycache__/
+.env

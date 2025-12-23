@@ -1,0 +1,6 @@
+streamlit
+firebase-admin
+numpy
+pandas
+python-dateutil
+python-dotenv
