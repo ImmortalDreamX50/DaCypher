@@ -21,7 +21,6 @@ if not firebase_admin._apps:
         "databaseURL": "https://cipher-d2ffa-default-rtdb.firebaseio.com/"
     })
 
-
 # ---------- DATABASE FUNCTIONS ----------
 
 def create_user(uid, username):
@@ -34,13 +33,16 @@ def create_user(uid, username):
             "level": 1,
             "uses_hint": 0
         })
+        # Update leaderboard with initial score 0
+        update_leaderboard(username, 0)
 
 def get_user(uid):
     return db.reference(f"users/{uid}").get()
 
-def update_score(uid, new_score):
+def update_score(uid, username, new_score):
+    """Update user score and leaderboard"""
     db.reference(f"users/{uid}/score").set(new_score)
-    update_leaderboard(uid, new_score)  # Auto update leaderboard
+    update_leaderboard(username, new_score)  # Use username for leaderboard
 
 def update_level(uid, new_level):
     db.reference(f"users/{uid}/level").set(new_level)
@@ -55,12 +57,26 @@ def update_leaderboard(username, score):
     db.reference("leaderboard").update({username: score})
 
 def save_progress(uid, username, level, score):
+    """Save full user progress"""
     ref = db.reference(f"users/{uid}")
     ref.update({
         "username": username,
         "level": level,
         "score": score
     })
+    update_leaderboard(username, score)
 
 def get_progress(uid):
     return db.reference(f"users/{uid}").get()
+
+# ---------- EXAMPLE USAGE ----------
+
+if __name__ == "__main__":
+    uid = str(uuid.uuid4())
+    username = "Lavhelani"
+    
+    create_user(uid, username)
+    update_score(uid, username, 50)
+    increment_hint_usage(uid)
+    
+    print(get_progress(uid))
