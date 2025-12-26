@@ -1,5 +1,7 @@
 # Firebase credentials
-*.json
+# Firebase credentials
+cipher-d2ffa-firebase-adminsdk-*.json
+
 
 # Python cache
 __pycache__/

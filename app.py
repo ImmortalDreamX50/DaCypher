@@ -6,6 +6,18 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timezone
+# ---------- AUTH (Anonymous-style codename auth) ----------
+import uuid
+
+def get_or_create_uid(codename: str):
+    """
+    Creates a hidden UID linked to a codename.
+    UID is stored in session_state and never shown.
+    """
+    if "uid" not in st.session_state:
+        # Stable UID per codename
+        st.session_state.uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, codename))
+    return st.session_state.uid
 
 # keep exact import as you requested
 from Cipher import encode_for_level, decode_for_level
