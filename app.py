@@ -1,7 +1,5 @@
-
-import streamlit as st
-import json, random, time, io, logging
-import numpy as np
+# app.py - Cipher Missions + Firebase integration 
+import json, random, time, logging
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timezone
@@ -76,9 +74,10 @@ if errs:
 defaults = {
     "player": "", "uid_loaded": False, "uid": None,
     "level": 1, "score": 0, "history": [], "seen_puzzles": set(),
-    "mission_started": False, "start_time": None, "timer_mode": None,
+    "mission_started": False, "start_time": None, "timer_mode": "stopwatch",
     "max_time": 60, "current_entry": None, "current_cipher": "",
-    "hint_index": 0, "hint_uses": 0, "show_clues": False
+    "hint_index": 0, "hint_uses": 0, "show_clues": False,
+    "guess_input": ""
 }
 for k,v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
@@ -179,12 +178,10 @@ st.markdown("### Intercepted Transmission")
 st.markdown(f"<div class='transmission'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# Live Stopwatch
-stopwatch_placeholder = st.empty()
+# Stopwatch display
 if st.session_state.mission_started:
     elapsed = int(time.time() - st.session_state.start_time)
-    stopwatch_placeholder.markdown(f"⏱ Elapsed time: **{elapsed} seconds**")
-    st.rerun()
+    st.markdown(f"⏱ Elapsed time: **{elapsed} seconds**")
 
 # -------------------------
 # Clues
@@ -208,47 +205,49 @@ if not st.session_state.uid_loaded:
             st.success(f"Welcome, {username_input}. Progress loaded.")
             start_new_mission()
             st.rerun()
-else:
-    st.markdown(f"<div class='muted'>Agent: {st.session_state.player}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# Answer submission
-guess = st.text_input("Enter decoded phrase (exact match):", key="guess_input")
-if st.button("Transmit Conclusion") and st.session_state.current_entry:
-    answer = st.session_state.current_entry.get("answer","").strip().lower()
-    correct = guess.strip().lower() == answer
-    st.session_state.history.append({
-        "level": st.session_state.level,
-        "cipher": st.session_state.current_cipher,
-        "answer": guess,
-        "correct": correct,
-        "time": datetime.now(timezone.utc).isoformat()
-    })
-    if correct:
-        points = 5 + st.session_state.level // 2
-        st.session_state.score += points
-        st.success(f"✅ Correct. +{points} points.")
-        persist_user_progress(st.session_state.player)
-        st.session_state.level += 1
-        st.session_state.mission_started = False
-        start_new_mission()
-        st.rerun()
-    else:
-        st.session_state.score = max(0, st.session_state.score - 2)
-        st.error("❌ Incorrect. Mission compromised.")
-        persist_user_progress(st.session_state.player)
+# Answer input & submit
+if st.session_state.mission_started:
+    st.session_state.guess_input = st.text_input("Enter decoded phrase (exact match):", key="guess_input", value=st.session_state.get("guess_input",""))
+    if st.button("Transmit Conclusion") and st.session_state.current_entry:
+        guess = st.session_state.guess_input
+        answer = st.session_state.current_entry.get("answer","").strip().lower()
+        correct = guess.strip().lower() == answer
+        st.session_state.history.append({
+            "level": st.session_state.level,
+            "cipher": st.session_state.current_cipher,
+            "answer": guess,
+            "correct": correct,
+            "time": datetime.now(timezone.utc).isoformat()
+        })
+        if correct:
+            points = 5 + st.session_state.level // 2
+            st.session_state.score += points
+            st.success(f"✅ Correct. +{points} points.")
+            persist_user_progress(st.session_state.player)
+            st.session_state.level += 1
+            st.session_state.mission_started = False
+            start_new_mission()
+            st.session_state.guess_input = ""
+            st.rerun()
+        else:
+            st.session_state.score = max(0, st.session_state.score - 2)
+            st.error("❌ Incorrect. Mission compromised.")
+            persist_user_progress(st.session_state.player)
 
 # -------------------------
 # Hints
-if st.button("💡 Get Hint") and st.session_state.current_entry:
-    reveal = 1 if st.session_state.hint_uses == 0 else 2
-    cost = 0 if st.session_state.hint_uses == 0 else 3
-    st.session_state.hint_index = min(len(st.session_state.current_entry.get("answer","")), st.session_state.hint_index + reveal)
-    st.session_state.hint_uses += 1
-    if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
-    persist_user_progress(st.session_state.player)
-    if st.session_state.hint_index > 0:
-        st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
+if st.session_state.mission_started:
+    if st.button("💡 Get Hint") and st.session_state.current_entry:
+        reveal = 1 if st.session_state.hint_uses == 0 else 2
+        cost = 0 if st.session_state.hint_uses == 0 else 3
+        st.session_state.hint_index = min(len(st.session_state.current_entry.get("answer","")), st.session_state.hint_index + reveal)
+        st.session_state.hint_uses += 1
+        if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
+        persist_user_progress(st.session_state.player)
+        if st.session_state.hint_index > 0:
+            st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
 
 # -------------------------
 # Mission log & leaderboard
