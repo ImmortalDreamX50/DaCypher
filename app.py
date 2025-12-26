@@ -176,6 +176,7 @@ if st.session_state.mission_started:
     if st.button("Transmit Conclusion") and st.session_state.current_entry:
         answer = st.session_state.current_entry.get("answer","").strip().lower()
         correct = guess.strip().lower() == answer
+        # log attempt
         st.session_state.history.append({
             "level": st.session_state.level,
             "cipher": st.session_state.current_cipher,
@@ -183,14 +184,17 @@ if st.session_state.mission_started:
             "correct": correct,
             "time": datetime.now(timezone.utc).isoformat()
         })
+
         if correct:
             points = 5 + st.session_state.level // 2
             st.session_state.score += points
             st.success(f"✅ Correct. +{points} points.")
             persist_user_progress(st.session_state.player)
+            
+            # Move to next level automatically
             st.session_state.level += 1
             st.session_state.mission_started = False
-            start_new_mission()
+            start_new_mission()  # start next mission automatically
             st.rerun()
         else:
             st.session_state.score = max(0, st.session_state.score - 2)
@@ -198,15 +202,34 @@ if st.session_state.mission_started:
             persist_user_progress(st.session_state.player)
 
 # Hints
-if st.session_state.mission_started and st.button("💡 Get Hint") and st.session_state.current_entry:
-    reveal = 1 if st.session_state.hint_uses == 0 else 2
-    cost = 0 if st.session_state.hint_uses == 0 else 3
-    st.session_state.hint_index = min(len(st.session_state.current_entry.get("answer","")), st.session_state.hint_index + reveal)
-    st.session_state.hint_uses += 1
-    if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
-    persist_user_progress(st.session_state.player)
-    if st.session_state.hint_index > 0:
-        st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
+if st.button("💡 Get Hint") and st.session_state.player:
+    if not st.session_state.mission_started:
+        # Stage 1: User entered codename, mission not started
+        st.markdown("### Clue meanings (before mission):")
+        st.markdown(
+            """
+            **M:** Mission context  
+            **I:** Intercepted detail  
+            **P:** Physical proof  
+            **B:** Backstory  
+            **E:** Evidence
+            """
+        )
+    else:
+        # Stage 2: Mission started, show mission-specific clues
+        e = st.session_state.current_entry
+        if e:
+            st.markdown("### Clues for this mission:")
+            st.markdown(f"**M:** {e.get('M','')}")
+            st.markdown(f"**I:** {e.get('I','')}")
+            st.markdown(f"**P:** {e.get('P','')}")
+            st.markdown(f"**B:** {e.get('B','')}")
+            st.markdown(f"**E:** {e.get('E','')}")
+    
+    # Increment hint usage and persist if mission started
+    if st.session_state.mission_started:
+        st.session_state.hint_uses += 1
+        persist_user_progress(st.session_state.player)
 
 # Restart Session Button
 if st.button("♻️ Restart Session"):
