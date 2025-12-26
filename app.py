@@ -1,4 +1,5 @@
 # app.py - Cipher Missions + Firebase integration 
+import streamlit as st
 import json, random, time, logging
 import pandas as pd
 from pathlib import Path
