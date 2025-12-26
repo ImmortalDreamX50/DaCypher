@@ -6,38 +6,17 @@ from pathlib import Path
 from datetime import datetime, timezone
 import uuid
 
-# ---------- AUTH ----------
-def get_or_create_uid(codename: str):
-    if "uid" not in st.session_state:
-        st.session_state.uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, codename))
-    return st.session_state.uid
-
-# Cipher imports
-from Cipher import encode_for_level, decode_for_level
-
-# Firebase functions
-from firebase import (
-    create_user,
-    get_progress,
-    update_score,
-    update_level,
-    increment_hint_usage,
-    update_leaderboard,
-    save_progress,
-)
-
-# -------------------------
-# Config & logging
+# ---------- Config ----------
 st.set_page_config(page_title="Agency Intel Ops", layout="centered")
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 
+# ---------- Directories ----------
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 LEADERBOARD_FILE = DATA_DIR / "leaderboard.csv"
 WORD_BANK_FILE = Path("wordbank.json")
 
-# -------------------------
-# Load wordbank
+# ---------- Load Wordbank ----------
 if not WORD_BANK_FILE.exists():
     st.error(f"Missing {WORD_BANK_FILE.name} in project folder.")
     st.stop()
@@ -70,21 +49,19 @@ if errs:
         st.write("- " + e)
     st.stop()
 
-# -------------------------
-# Session state defaults
+# ---------- Session State Defaults ----------
 defaults = {
     "player": "", "uid_loaded": False, "uid": None,
     "level": 1, "score": 0, "history": [], "seen_puzzles": set(),
-    "mission_started": False, "start_time": None, "timer_mode": "stopwatch",
-    "max_time": 60, "current_entry": None, "current_cipher": "",
+    "mission_started": False, "start_time": None,
+    "current_entry": None, "current_cipher": "",
     "hint_index": 0, "hint_uses": 0, "show_clues": False,
     "guess_input": ""
 }
 for k,v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# -------------------------
-# Local leaderboard helpers
+# ---------- Local Leaderboard ----------
 def read_leaderboard_local():
     if LEADERBOARD_FILE.exists():
         try: return pd.read_csv(LEADERBOARD_FILE)
@@ -100,8 +77,10 @@ def save_score_local(name, score, level):
     df = pd.concat([df, new_row], ignore_index=True)
     df.to_csv(LEADERBOARD_FILE, index=False)
 
-# -------------------------
-# Firebase helpers
+# ---------- Firebase Helpers ----------
+from Cipher import encode_for_level
+from firebase import create_user, get_progress, update_score, update_level, increment_hint_usage, update_leaderboard, save_progress
+
 def ensure_user_loaded(username):
     if not username: return False
     uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, username))
@@ -109,11 +88,11 @@ def ensure_user_loaded(username):
     except Exception as e: st.error(f"Firebase create_user error: {e}"); return False
     try: data = get_progress(uid)
     except Exception as e: st.error(f"Firebase get_progress error: {e}"); return False
-    if not data: data = {"level": 1, "score": 0, "uses_hint": 0}; save_progress(uid, username, 1, 0)
+    if not data: data = {"level":1,"score":0,"uses_hint":0}; save_progress(uid, username, 1, 0)
     st.session_state.player = username
-    st.session_state.level = int(data.get("level", 1))
-    st.session_state.score = int(data.get("score", 0))
-    st.session_state.hint_uses = int(data.get("uses_hint", 0))
+    st.session_state.level = int(data.get("level",1))
+    st.session_state.score = int(data.get("score",0))
+    st.session_state.hint_uses = int(data.get("uses_hint",0))
     st.session_state.uid_loaded = True
     st.session_state.uid = uid
     return True
@@ -127,8 +106,7 @@ def persist_user_progress(username):
     except Exception:
         save_score_local(username, st.session_state.score, st.session_state.level)
 
-# -------------------------
-# Mission helpers
+# ---------- Mission Helpers ----------
 def pick_random_entry_for_level(level):
     entries = word_bank.get(str(level), [])
     if not entries: return None
@@ -143,7 +121,11 @@ def pick_random_entry_for_level(level):
 def start_new_mission(level=None):
     if level is None: level = st.session_state.level
     entry = pick_random_entry_for_level(level)
-    if not entry: st.session_state.current_entry = None; st.session_state.current_cipher = ""; st.session_state.mission_started = False; return False
+    if not entry:
+        st.session_state.current_entry = None
+        st.session_state.current_cipher = ""
+        st.session_state.mission_started = False
+        return False
     st.session_state.current_entry = entry
     words = [w for w in entry.get("answer","").upper().split() if w.isalpha()]
     cipher = encode_for_level(words, st.session_state.level)
@@ -151,40 +133,23 @@ def start_new_mission(level=None):
     st.session_state.hint_index = 0
     st.session_state.start_time = time.time()
     st.session_state.mission_started = True
+    st.session_state.guess_input = ""
     return True
 
-# -------------------------
-# UI CSS
-st.markdown("""
-<style>
-:root { --bg:#071011; --panel:#0b1416; --accent:#00c37a; --muted:#8fb0a4; --card:#071819; }
-.main-card { background: linear-gradient(180deg, rgba(10,18,20,0.95), rgba(5,10,11,0.95));
-border: 1px solid rgba(0,195,122,0.08); padding: 18px; border-radius: 12px;
-box-shadow: 0 6px 24px rgba(0,0,0,0.6); color: #e6fff5; max-width: 930px; margin: 12px auto;
-font-family: "Source Code Pro", monospace; }
-.title-small { color: var(--accent); font-weight:700; font-size:18px; }
-.muted { color: #9bbab0; font-size:13px; }
-.transmission { background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px;
-border-radius:8px; font-family:monospace; }
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+# ---------- UI ----------
+st.markdown("<div style='padding:12px; max-width:930px; margin:auto;'>", unsafe_allow_html=True)
 st.markdown(f"<h2>🕵️ Agency Intel Ops — Decryption Terminal</h2>", unsafe_allow_html=True)
-st.markdown(f"<div class='muted'>Agent: {st.session_state.player or '—'} | Level {st.session_state.level} | Score {st.session_state.score}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='color:#9bbab0;'>Agent: {st.session_state.player or '—'} | Level {st.session_state.level} | Score {st.session_state.score}</div>", unsafe_allow_html=True)
 
-# -------------------------
 # Intercepted Transmission
 st.markdown("### Intercepted Transmission")
-st.markdown(f"<div class='transmission'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px; border-radius:8px; font-family:monospace;'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
 
-# -------------------------
 # Stopwatch display
 if st.session_state.mission_started:
     elapsed = int(time.time() - st.session_state.start_time)
     st.markdown(f"⏱ Elapsed time: **{elapsed} seconds**")
 
-# -------------------------
 # Clues
 st.markdown("### Clues (M / I / P / B / E)")
 if st.button("🔎 Reveal Clues"):
@@ -197,22 +162,18 @@ if st.session_state.show_clues and st.session_state.current_entry:
     st.markdown(f"**B:** {e.get('B','')}")
     st.markdown(f"**E:** {e.get('E','')}")
 
-# -------------------------
-# User login & mission control
+# Username input
 if not st.session_state.uid_loaded:
     username_input = st.text_input("Enter Codename:", key="codename_input")
-    if username_input:
-        if ensure_user_loaded(username_input):
-            st.success(f"Welcome, {username_input}. Progress loaded.")
-            start_new_mission()
-            st.rerun()
+    if username_input and ensure_user_loaded(username_input):
+        st.success(f"Welcome, {username_input}. Progress loaded.")
+        start_new_mission()
+        st.rerun()
 
-# -------------------------
-# Answer input & submit
+# Answer input
 if st.session_state.mission_started:
-    st.session_state.guess_input = st.text_input("Enter decoded phrase (exact match):", key="guess_input", value=st.session_state.get("guess_input",""))
+    guess = st.text_input("Enter decoded phrase (exact match):", key="guess_input")
     if st.button("Transmit Conclusion") and st.session_state.current_entry:
-        guess = st.session_state.guess_input
         answer = st.session_state.current_entry.get("answer","").strip().lower()
         correct = guess.strip().lower() == answer
         st.session_state.history.append({
@@ -230,27 +191,34 @@ if st.session_state.mission_started:
             st.session_state.level += 1
             st.session_state.mission_started = False
             start_new_mission()
-            st.session_state.guess_input = ""
             st.rerun()
         else:
             st.session_state.score = max(0, st.session_state.score - 2)
             st.error("❌ Incorrect. Mission compromised.")
             persist_user_progress(st.session_state.player)
 
-# -------------------------
 # Hints
-if st.session_state.mission_started:
-    if st.button("💡 Get Hint") and st.session_state.current_entry:
-        reveal = 1 if st.session_state.hint_uses == 0 else 2
-        cost = 0 if st.session_state.hint_uses == 0 else 3
-        st.session_state.hint_index = min(len(st.session_state.current_entry.get("answer","")), st.session_state.hint_index + reveal)
-        st.session_state.hint_uses += 1
-        if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
-        persist_user_progress(st.session_state.player)
-        if st.session_state.hint_index > 0:
-            st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
+if st.session_state.mission_started and st.button("💡 Get Hint") and st.session_state.current_entry:
+    reveal = 1 if st.session_state.hint_uses == 0 else 2
+    cost = 0 if st.session_state.hint_uses == 0 else 3
+    st.session_state.hint_index = min(len(st.session_state.current_entry.get("answer","")), st.session_state.hint_index + reveal)
+    st.session_state.hint_uses += 1
+    if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
+    persist_user_progress(st.session_state.player)
+    if st.session_state.hint_index > 0:
+        st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
 
-# -------------------------
+# Restart Session Button
+if st.button("♻️ Restart Session"):
+    preserved_timer = st.session_state.get("timer_mode", None)
+    keys = list(st.session_state.keys())
+    for k in keys:
+        del st.session_state[k]
+    for k,v in defaults.items():
+        st.session_state[k] = v
+    st.session_state.timer_mode = preserved_timer
+    st.rerun()
+
 # Mission log & leaderboard
 st.markdown("## 🗂 Mission Log (this session)")
 if st.session_state.history:
