@@ -1,6 +1,6 @@
 # app.py - Cipher Missions + Firebase integration 
 import streamlit as st
-import json, random, time, logging
+import json, random, time, logging, re
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timezone
@@ -141,9 +141,19 @@ st.markdown("<div style='padding:12px; max-width:930px; margin:auto;'>", unsafe_
 st.markdown(f"<h2>🕵️ Agency Intel Ops — Decryption Terminal</h2>", unsafe_allow_html=True)
 st.markdown(f"<div style='color:#9bbab0;'>Agent: {st.session_state.player or '—'} | Level {st.session_state.level} | Score {st.session_state.score}</div>", unsafe_allow_html=True)
 
-# Intercepted Transmission
-st.markdown("### Intercepted Transmission")
-st.markdown(f"<div style='background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px; border-radius:8px; font-family:monospace;'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
+# Intercepted Transmission - numbers in white
+def style_cipher(cipher):
+    def repl(match):
+        return f"<span style='color:white'>{match.group(0)}</span>"
+    return re.sub(r"\d", repl, cipher)
+
+cipher_display = st.session_state.current_cipher or '— no active transmission —'
+styled_cipher = style_cipher(cipher_display)
+st.markdown(f"""
+<div style='background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px; border-radius:8px; font-family:monospace; color:#00c37a;'>
+{styled_cipher}
+</div>
+""", unsafe_allow_html=True)
 
 # Stopwatch display
 if st.session_state.mission_started:
