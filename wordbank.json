@@ -1,0 +1,397 @@
+{
+  "1": [
+    {
+      "M": "Subject seen near embassy perimeter",
+      "I": "Behavior suggests recon scanning",
+      "P": "Night-vision device recovered",
+      "B": "Subject claimed to be a tourist photographing architecture",
+      "E": "Thermal signature logs: 3 hours stationary surveillance",
+      "answer": "Espionage reconnaissance",
+      "cipher": "ecnaissocennocer egoinspE"
+    }
+  ],
+
+  "2": [
+    {
+      "M": "Financial transfers flagged via SWIFT",
+      "I": "Pattern matches covert operational funding",
+      "P": "Shell companies traced",
+      "B": "Labeled as charity donations",
+      "E": "Blockchain trace confirms movement to weapons supplier",
+      "answer": "Illicit arms financing",
+      "cipher": "Jmmjdju bsn t gjobodoh"
+    }
+  ],
+
+  "3": [
+    {
+      "M": "Operator acquired dual passports",
+      "I": "Coordination with known safehouse handler",
+      "P": "Encrypted call history found",
+      "B": "Claims dual citizenship for business travel",
+      "E": "Intercepted GPS route to classified lab",
+      "answer": "Covert infiltration",
+      "cipher": "noitartlifni trevoC"
+    }
+  ],
+
+  "4": [
+    {
+      "M": "Shadow trace detected near perimeter node",
+      "I": "Movement inconsistent with civilian drift",
+      "P": "Signal residue hints at layered routing",
+      "B": "Subject claims they were jogging",
+      "E": "Thermal haze indicates stalled position",
+      "answer": "Preliminary covert probing",
+      "cipher": "Qsfmjnjobsz dpwfsu qspcjoh"
+    }
+  ],
+
+  "5": [
+    {
+      "M": "Unidentified signal flutter near checkpoint",
+      "I": "Trajectory deviates before sensor lock",
+      "P": "Fragmented ping returns unusual density",
+      "B": "Stated they were testing new headphones",
+      "E": "Heat trace suggests micro-pauses",
+      "answer": "Low-tier situational mapping",
+      "cipher": "gnippam lanoitautis reit-wol"
+    }
+  ],
+
+  "6": [
+    {
+      "M": "Brief shadow registered behind access gate",
+      "I": "Drift signature partially masked",
+      "P": "Sensor echo inconsistent with wildlife",
+      "B": "Claim: chasing a pet",
+      "E": "Thermal patch shows short-term linger",
+      "answer": "Stealth-oriented border gauging",
+      "cipher": "Tubm u i p s j f o u f e c p s e f s h b v h j o h"
+    }
+  ],
+
+  "7": [
+    {
+      "M": "Light distortion near relay box",
+      "I": "Motion frequency unusually disciplined",
+      "P": "Signal trace shows abrupt cutoff",
+      "B": "Person claimed they dropped a wallet",
+      "E": "Infrared reveals inconsistent pacing",
+      "answer": "Intentional tactical surveying",
+      "cipher": "gniyevrus lacitcat lanoitnetnI"
+    }
+  ],
+
+  "8": [
+    {
+      "M": "Minimal disruption detected in sensor arc",
+      "I": "Gait irregularity hints controlled pacing",
+      "P": "Weak pulse signal left behind",
+      "B": "Subject said they were sightseeing",
+      "E": "Thermal shape fades too evenly",
+      "answer": "Covert perimeter sampling",
+      "cipher": "Dp wfsu qfsjnfu f s t bnqm j oh"
+    }
+  ],
+
+  "9": [
+    {
+      "M": "Deep-range motion lattice captured a silhouette crossing an unlit corridor normally inaccessible without clearance.",
+      "I": "Step-intervals match trained counter-surveillance cadence used to avoid harmonic motion sensors.",
+      "P": "Residual acoustic scatter suggests specialized fabric designed to absorb sonar pulses.",
+      "B": "Claimed they were searching for a lost drone that ‘flew inside by mistake’.",
+      "E": "Triangulated echo shows entry vector aligned with a blind security angle known only to professionals.",
+      "answer": "Intermediate level infiltration attempt",
+      "cipher": "Intermediate level infiltration attempt"
+    }
+  ],
+
+  "10": [
+    {
+      "M": "Network anomaly detected: layered packet stream masquerading as environmental telemetry.",
+      "I": "Routing origin obfuscated through seven hops, two of which belong to decommissioned satellites.",
+      "P": "Partial payload reveals compressed schematics of the outer perimeter grid.",
+      "B": "Operator insists they were running ‘harmless diagnostics’.",
+      "E": "Checksum mismatch reveals intentional timestamp distortion to bypass audit triggers.",
+      "answer": "Unauthorized system mapping and exfiltration",
+      "cipher": "noitartlifxe dna gnippam metsys dezidarehtnU"
+    }
+  ],
+
+  "11": [
+    {
+      "M": "Long-range infrared captured repeated pacing in a geometric pattern around the north exit corridor.",
+      "I": "Pattern correlates with a spatial triangulation protocol used for distance calibration.",
+      "P": "Dust displacement shows tripod contact points despite operator carrying no visible equipment.",
+      "B": "Claimed to be stretching after a run.",
+      "E": "Thermal decay curve indicates placement of a cooled metallic object for at least 18 seconds.",
+      "answer": "Calibration for a future extraction route",
+      "cipher": "Dbmjcsbujpo gps b gvuvsf fyusbdujpo spvuf"
+    }
+  ],
+
+  "12": [
+    {
+      "M": "Audio sensors picked up subharmonic tones below human vocal range emitted intermittently.",
+      "I": "Frequency matches encoded communication used by encrypted proximity devices.",
+      "P": "Recovered particulate matter includes micro-resin typical of stealth beacons.",
+      "B": "Subject claims they were ‘testing microphone sensitivity’.",
+      "E": "Signal decay indicates broadcast sync with an external receiver outside facility bounds.",
+      "answer": "Covert beacon synchronization",
+      "cipher": "Dp wfsu c fb d po t z o n i b od jpo"
+    }
+  ],
+
+  "13": [
+    {
+      "M": "Magnetic field sensors recorded a low dip as someone passed an unshielded zone.",
+      "I": "Dip magnitude consistent with concealed ferromagnetic hardware.",
+      "P": "Ground imprint suggests small equipment case carried low and tight to the body.",
+      "B": "Subject claimed they were carrying metal snack containers.",
+      "E": "Trajectory avoided choke points with uncanny precision.",
+      "answer": "Smuggling reconnaissance hardware",
+      "cipher": "Tnvohmjoh sf p d oobtjfod ifs x b s e"
+    }
+  ],
+
+  "14": [
+    {
+      "M": "High-frequency scatter reflection mapped a sudden crouched profile near the archive vault hatch.",
+      "I": "Behavior matches a practiced move to align with the hinge’s blind zone.",
+      "P": "Detected faint oil traces from a micro-articulating tool.",
+      "B": "Claimed to be tying a shoelace.",
+      "E": "Pressure analysis reveals a 4.7-second hold consistent with hinge stress testing.",
+      "answer": "Pre-access mechanical probing of restricted entry",
+      "cipher": "Qsf-bd f t dnfm dbm p s c j o h pg s f d j t u f e e fod sz"
+    }
+  ],
+
+  "15": [
+    {
+      "M": "Motion capture picked a faint hand gesture aimed at the ventilation grid’s shadow line.",
+      "I": "Gesture resembles activation cue for passive optical relays.",
+      "P": "Fine glass fiber residue discovered embedded in the grate edges.",
+      "B": "Claimed they were checking airflow.",
+      "E": "Heat mapping reveals a 0.3°C spike consistent with micro-laser activation.",
+      "answer": "Optical relay attempt via ventilation system",
+      "cipher": "Pqujdbm sf mb z b uufnqu w jb w f ou j m bu j po t z t u f n"
+    }
+  ],
+
+  "16": [
+    {
+      "M": "Sub-thermal readings detected a transient cold spot shaped like a handprint near the secure console.",
+      "I": "Cold transfer signature suggests contact with cryo-gel used to suppress biometric sensors.",
+      "P": "Recovered smear contains trace of volatile refrigerant used by infiltration specialists.",
+      "B": "Operator insists they simply leaned on the console.",
+      "E": "Biometric log shows multiple failed scans spaced at perfect bypass intervals.",
+      "answer": "Biometric suppression attempt",
+      "cipher": "Cjpn f us jd tv qqsfttj po buufnqu"
+    }
+  ],
+
+  "17": [
+    {
+      "M": "Thermal cameras detected a ripple-like distortion at the far junction corridor.",
+      "I": "Movement cadence aligns with operators trained to break algorithmic gait detection.",
+      "P": "Trace residue shows anomalous micro-abrasions from polymer plating.",
+      "B": "Subject claimed they stumbled while checking directions.",
+      "E": "Atmospheric ionization dip noted for four consecutive seconds.",
+      "answer": "Calculated breach rehearsal in restricted zone",
+      "cipher": "Ecnncwncvgf dtgcej tgfgtucn kp tguvtkevgf bqpg"
+    }
+  ],
+
+  "18": [
+    {
+      "M": "Electromagnetic sweep picked a muted oscillation beneath the floor plating.",
+      "I": "Frequency harmonics indicate layered instrumentation.",
+      "P": "Recovered particle dust contains reactive residues.",
+      "B": "Subject stated they dropped a battery.",
+      "E": "Sensor decay graph shows intentional pattern shaping.",
+      "answer": "Subsurface monitoring to evaluate shield weaknesses",
+      "cipher": "Uwdtwtecig oqpkvqtkpi vq gxcnwcvg ujkgngu yggmpgssgu"
+    }
+  ],
+
+  "19": [
+    {
+      "M": "A faint silhouette traced a converging path with a maintenance tunnel vector.",
+      "I": "Shifted center of mass implies hidden equipment strapped along spine.",
+      "P": "Residual scrape suggests hardened plating brushed concrete.",
+      "B": "Operator said they were stretching their back.",
+      "E": "Magnetic ripple shifts match portable power cores.",
+      "answer": "Covert relocation assessment using hidden energy modules",
+      "cipher": "Eqxgtv tgnqecvkqp cuuguunkgpv wukpi jkffgp gpgti{ oqfwngu"
+    }
+  ],
+
+  "20": [
+    {
+      "M": "Infrared trail shows alternating hot and cold imprints along the storage axis.",
+      "I": "Temperature deviations too rhythmic for accidental pacing.",
+      "P": "Detected trace vapor from instant-chilled compounds.",
+      "B": "Subject said they were waiting for a friend.",
+      "E": "Pattern overlays perfectly with extraction rehearsal drills.",
+      "answer": "Sequential routing test for rapid extraction mapping",
+      "cipher": "Ugswgpvkcn tqwvkpi vguv hqt tcrkf gzvtcevkqp ocppkpi"
+    }
+  ],
+
+  "21": [
+    {
+      "M": "Pressure monitors reported staggered weight pulses in an encoded interval.",
+      "I": "Pulse duration corresponds to a known covert counting method.",
+      "P": "A faint graphite residue lines the panel edge.",
+      "B": "Claimed they were leaning casually.",
+      "E": "Motion lag suggests micro-deliberate positioning.",
+      "answer": "Mapping structural anchor points for concealed access",
+      "cipher": "Dbddft dmf b d p o s f d s g t u q s b p s d d p s v u t h q o b s d u s v d o j qq b n"
+    }
+  ],
+
+  "22": [
+    {
+      "M": "A compressed air burst registered from beneath reinforced plating.",
+      "I": "Waveform decay resembles underfloor relay activation.",
+      "P": "Traces of fine metallic dust detected in airflow.",
+      "B": "Subject claimed they slipped.",
+      "E": "Vibration echoes show deliberate multi-point contact.",
+      "answer": "Preparing underfloor relay trigger for coordinated breach",
+      "cipher": "Ifc b s d b e s o j b d s q b e o o b s p b h u s du z b s f d s p q s f u b s q"
+    }
+  ],
+
+  "23": [
+    {
+      "M": "Thermal bloom formed a ring pattern inconsistent with normal foot placement.",
+      "I": "Heat distribution implies directional intent.",
+      "P": "Recovered fragment shows scorched polymer edge.",
+      "B": "Claimed they were fixing a shoelace.",
+      "E": "Pulse timeline suggests interval signaling.",
+      "answer": "Marking vector alignment for silent traversal plotting",
+      "cipher": "Hvu u j u u o p s q sb w f s l u ojm f c f t p d ps d b l g s p h n j m b w b s f s f u p t"
+    }
+  ],
+
+  "24": [
+    {
+      "M": "A low tremor shifted across the west corridor at an oddly consistent tempo.",
+      "I": "Micro-tremor frequency matches a hand-held scanning wand pattern.",
+      "P": "Dust scatter trajectory suggests angled sweeping.",
+      "B": "Operator claimed they were stretching their arm.",
+      "E": "Resonance curve indicates embedded sensor disturbance.",
+      "answer": "Scanning corridor integrity before executing intrusion pathing",
+      "cipher": "I u u b h u h u w j t u s p j n d f g p s f c f d v h f y f s f q f b s l j u s ps d d b t d"
+    }
+  ],
+
+  "25": [
+    {
+      "M": "Pressure arrays recorded a stepped cadence across the south entry tile.",
+      "I": "Signal decay matched a progressive footprint pattern rather than random foot traffic.",
+      "P": "Fine debris displaced in a logarithmic arc near the threshold.",
+      "B": "Subject claimed gusts of wind disturbed the area.",
+      "E": "Sequence timing aligns with known methodical routing tests.",
+      "answer": "Sequential sensor suppression used to mask ingress timing",
+      "cipher": "Tfrvfoujbm tfotps tvqqsfttjpo vtfe up nbtl johsftt ujnjoh"
+    }
+  ],
+
+  "26": [
+    {
+      "M": "A brief window of low visibility coincided with a handoff near the alley mouth.",
+      "I": "Witness timing and vehicle positioning suggest prearranged exchange.",
+      "P": "Small package found with unregistered markings beneath a bench.",
+      "B": "Participants said they were exchanging notes.",
+      "E": "Camera jitter was localized and brief, not system-wide.",
+      "answer": "Covert handoff executed beneath neutral lighting to avoid cameras",
+      "cipher": "Dpwfsu iboepgg fyfdvufe cfofbui ofvusbm mjhiujoh up bwpje dbnfsbt"
+    }
+  ],
+
+  "27": [
+    {
+      "M": "Network logs show an embedded object propagating inside mundane traffic.",
+      "I": "Packet clustering and timing indicate staged insertion rather than spontaneous artifact.",
+      "P": "Archived logs include a small, encoded blob matching the signature.",
+      "B": "IT staff called it a transient sync issue.",
+      "E": "The payload’s checksum repeats at slow intervals consistent with stealth extraction.",
+      "answer": "Encrypted payload inserted into benign data streams for slow exfiltration",
+      "cipher": "Fodszqufe qbzmpbe jotfsufe joup cfojho ebub tusfbnt gps tmpx fygjmusbujpo"
+    }
+  ],
+
+  "28": [
+    {
+      "M": "Surveillance noted a staggered ingress pattern that synchronized with guard rotation.",
+      "I": "Each approach hesitated at predictable micro-gaps.",
+      "P": "Scuff marks suggest measured pacing rather than hurried trespass.",
+      "B": "Subject said they were pacing while waiting.",
+      "E": "Intervals correlate with known rehearsal techniques for timed entry.",
+      "answer": "Operative rehearsed a staggered entry matching patrol micro-gaps",
+      "cipher": "Pqfsbujwf sfifbstfe b tubhhfsfe fousz nbudijoh qbuspm njdsp-hbqt"
+    }
+  ],
+
+  "29": [
+    {
+      "M": "A compact module was found secured to a service conduit.",
+      "I": "Module orientation suggests intentional reroute of alert signals through a local node.",
+      "P": "Mounting hardware matched a custom relay bracket.",
+      "B": "Maintenance logs mention a temporary outage at the same hour.",
+      "E": "The component’s wiring bypasses the primary alarm chain.",
+      "answer": "Stealth relay installed to reroute alarm triggers during outage",
+      "cipher": "Tufbmui sfmbz jotubmmfe up sfspvuf bmbsn usjhhfst evsjoh pvubhf"
+    }
+  ],
+
+  "30": [
+    {
+      "M": "Multiple clearances appeared to overlap in the access registry within a short timeframe.",
+      "I": "Temporal correlation hints at orchestrated movement across adjacent nodes.",
+      "P": "Two separate consoles logged near-simultaneous maintenance flags.",
+      "B": "Engineers attributed it to sync testing.",
+      "E": "Patterning echoes a high-tier staged coordination model.",
+      "answer": "High-tier multi-node coordination exploiting overlapping clearances",
+      "cipher": "secnaraelc gnippalrevo gnitiolpxe noitanidrooc edon-itlum reit-hgiH"
+    }
+  ],
+
+  "31": [
+    {
+      "M": "Audit trails show a brief unsigned key exchange at a quiet minute mark.",
+      "I": "Handshake timing and nonce spacing match silent crypto negotiation patterns.",
+      "P": "A small, temporary key stash was found in a transient cache.",
+      "B": "The operator said a debugging routine triggered it.",
+      "E": "Log probes indicate intentional obfuscation of exchange metadata.",
+      "answer": "Operator initiated silent key exchange to corrupt audit logs",
+      "cipher": "Pqfsbups jojujbufe tjmfou lfz fydibohf up dpssvqu bveju mpht"
+    }
+  ],
+
+  "32": [
+    {
+      "M": "Thermal records show rhythmic pulses alternating with ambient readings near the ductwork.",
+      "I": "Pulse amplitude and duration mimic background temperature variability.",
+      "P": "Moisture rings near vents indicate repeated breath-pattern proximity.",
+      "B": "Subject insisted they were breathing heavily from exertion.",
+      "E": "Micro-variations align with covert thermal masking strategies.",
+      "answer": "Thermal masking applied in pulses to mimic ambient fluctuations",
+      "cipher": "snoitautculf tneibma cimim ot seslup ni deilppa gniksam lamrehT"
+    }
+  ],
+
+  "33": [
+    {
+      "M": "A final comparative sweep found overlapping vectors converging beneath a controlled distraction.",
+      "I": "Divergence points suggest deliberate vector staging across unrelated channels.",
+      "P": "Tool impressions across different nodes share the same micro-pattern.",
+      "B": "Participants deny coordinated action, citing unrelated errands.",
+      "E": "Combined telemetry reveals a layered diversion timed to dilute detection.",
+      "answer": "Final elite operation: layered vectors converged under controlled diversion",
+      "cipher": "Gjobm fmjuf pqfsbujpo: mbzfsfe wfdupst dpowfshfe voefs dpouspmmfe ejwfstjpo"
+    }
+  ]
+}
