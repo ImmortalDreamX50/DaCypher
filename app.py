@@ -133,7 +133,6 @@ def start_new_mission(level=None):
     st.session_state.hint_index = 0
     st.session_state.start_time = time.time()
     st.session_state.mission_started = True
-    st.session_state.guess_input = ""
     return True
 
 # ---------- UI ----------
