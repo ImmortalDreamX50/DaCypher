@@ -1,6 +1,6 @@
-# app.py - Full Cipher Missions + Firebase integration with Live Stopwatch
+
 import streamlit as st
-import json, random, time, io, wave, logging
+import json, random, time, io, logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -31,35 +31,11 @@ from firebase import (
 # Config & logging
 st.set_page_config(page_title="Agency Intel Ops", layout="centered")
 logging.getLogger("streamlit").setLevel(logging.ERROR)
-logging.getLogger("streamlit.runtime.media_file_manager").setLevel(logging.CRITICAL)
 
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 LEADERBOARD_FILE = DATA_DIR / "leaderboard.csv"
 WORD_BANK_FILE = Path("wordbank.json")
-
-# -------------------------
-# Sound generator
-def make_tone(frequency=880, duration=0.12, volume=0.3, sample_rate=44100):
-    try:
-        t = np.linspace(0, duration, int(sample_rate * duration), False)
-        note = np.sin(frequency * t * 2 * np.pi) * volume
-        audio = (note * 32767).astype(np.int16)
-        buf = io.BytesIO()
-        with wave.open(buf, "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)
-            wf.setframerate(sample_rate)
-            wf.writeframes(audio.tobytes())
-        buf.seek(0)
-        return buf.read()
-    except:
-        return None
-
-SND_CORRECT = make_tone(1200, 0.16)
-SND_WRONG = make_tone(300, 0.2)
-SND_NEW = make_tone(700, 0.08)
-SND_HINT = make_tone(900, 0.06)
 
 # -------------------------
 # Load wordbank
@@ -175,8 +151,6 @@ def start_new_mission(level=None):
     st.session_state.hint_index = 0
     st.session_state.start_time = time.time()
     st.session_state.mission_started = True
-    try: st.audio(SND_NEW)
-    except: pass
     return True
 
 # -------------------------
@@ -200,19 +174,17 @@ st.markdown(f"<h2>🕵️ Agency Intel Ops — Decryption Terminal</h2>", unsafe
 st.markdown(f"<div class='muted'>Agent: {st.session_state.player or '—'} | Level {st.session_state.level} | Score {st.session_state.score}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# Mission display
+# Intercepted Transmission
 st.markdown("### Intercepted Transmission")
 st.markdown(f"<div class='transmission'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
 
 # -------------------------
 # Live Stopwatch
+stopwatch_placeholder = st.empty()
 if st.session_state.mission_started:
-    stopwatch_placeholder = st.empty()
-    while st.session_state.mission_started:
-        elapsed = int(time.time() - st.session_state.start_time)
-        stopwatch_placeholder.markdown(f"⏱ Elapsed time: **{elapsed} seconds**")
-        time.sleep(1)
-        st.experimental_rerun()
+    elapsed = int(time.time() - st.session_state.start_time)
+    stopwatch_placeholder.markdown(f"⏱ Elapsed time: **{elapsed} seconds**")
+    st.rerun()
 
 # -------------------------
 # Clues
@@ -235,7 +207,7 @@ if not st.session_state.uid_loaded:
         if ensure_user_loaded(username_input):
             st.success(f"Welcome, {username_input}. Progress loaded.")
             start_new_mission()
-            st.experimental_rerun()
+            st.rerun()
 else:
     st.markdown(f"<div class='muted'>Agent: {st.session_state.player}</div>", unsafe_allow_html=True)
 
@@ -255,18 +227,14 @@ if st.button("Transmit Conclusion") and st.session_state.current_entry:
     if correct:
         points = 5 + st.session_state.level // 2
         st.session_state.score += points
-        try: st.audio(SND_CORRECT)
-        except: pass
         st.success(f"✅ Correct. +{points} points.")
         persist_user_progress(st.session_state.player)
         st.session_state.level += 1
         st.session_state.mission_started = False
         start_new_mission()
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.session_state.score = max(0, st.session_state.score - 2)
-        try: st.audio(SND_WRONG)
-        except: pass
         st.error("❌ Incorrect. Mission compromised.")
         persist_user_progress(st.session_state.player)
 
@@ -279,8 +247,6 @@ if st.button("💡 Get Hint") and st.session_state.current_entry:
     st.session_state.hint_uses += 1
     if cost > 0: st.session_state.score = max(0, st.session_state.score - cost); st.warning(f"-{cost} points (hint)")
     persist_user_progress(st.session_state.player)
-    try: st.audio(SND_HINT)
-    except: pass
     if st.session_state.hint_index > 0:
         st.info(f"Hint: `{st.session_state.current_entry.get('answer','')[:st.session_state.hint_index]}`")
 
@@ -300,4 +266,5 @@ if not lb.empty:
     st.table(lb_sorted.head(20))
 else:
     st.info("No saved scores yet.")
+
 st.markdown("</div>", unsafe_allow_html=True)
