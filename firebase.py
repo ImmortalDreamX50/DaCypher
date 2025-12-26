@@ -1,12 +1,26 @@
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials, db
+import uuid
 
-# ---------- INITIALIZE FIREBASE ----------
-cred = credentials.Certificate("cipher-d2ffa-firebase-adminsdk-fbsvc-2c650154d7.json")
+# =========================
+# FIREBASE INITIALIZATION
+# =========================
 
-firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://cipher-d2ffa-default-rtdb.firebaseio.com/"
-})
+if not firebase_admin._apps:
+    firebase_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+
+    if not firebase_json:
+        raise ValueError("FIREBASE_SERVICE_ACCOUNT env variable not set")
+
+    cred_dict = json.loads(firebase_json)
+    cred = credentials.Certificate(cred_dict)
+
+    firebase_admin.initialize_app(cred, {
+        "databaseURL": "https://cipher-d2ffa-default-rtdb.firebaseio.com/"
+    })
+
 
 # ---------- DATABASE FUNCTIONS ----------
 
