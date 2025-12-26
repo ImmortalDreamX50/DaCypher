@@ -1,6 +1,6 @@
-# app.py - Cipher Missions + Firebase integration 
+# app.py - Cipher Missions + Firebase integration
 import streamlit as st
-import json, random, time, logging, re
+import json, random, time, logging
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timezone
@@ -56,7 +56,6 @@ defaults = {
     "mission_started": False, "start_time": None,
     "current_entry": None, "current_cipher": "",
     "hint_index": 0, "hint_uses": 0, "show_clues": False,
-    "guess_input": ""
 }
 for k,v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
@@ -129,7 +128,9 @@ def start_new_mission(level=None):
     st.session_state.current_entry = entry
     words = [w for w in entry.get("answer","").upper().split() if w.isalpha()]
     cipher = encode_for_level(words, st.session_state.level)
-    st.session_state.current_cipher = " ".join(chunk.replace("-", "") for chunk in cipher.split())
+    # Intercepted numbers in white
+    cipher_display = "".join([f"<span style='color:white'>{c}</span>" if c.isdigit() else c for c in " ".join(chunk.replace("-", "") for chunk in cipher.split())])
+    st.session_state.current_cipher = cipher_display
     st.session_state.hint_index = 0
     st.session_state.start_time = time.time()
     st.session_state.mission_started = True
@@ -140,19 +141,9 @@ st.markdown("<div style='padding:12px; max-width:930px; margin:auto;'>", unsafe_
 st.markdown(f"<h2>🕵️ Agency Intel Ops — Decryption Terminal</h2>", unsafe_allow_html=True)
 st.markdown(f"<div style='color:#9bbab0;'>Agent: {st.session_state.player or '—'} | Level {st.session_state.level} | Score {st.session_state.score}</div>", unsafe_allow_html=True)
 
-# Intercepted Transmission - numbers in white
-def style_cipher(cipher):
-    def repl(match):
-        return f"<span style='color:white'>{match.group(0)}</span>"
-    return re.sub(r"\d", repl, cipher)
-
-cipher_display = st.session_state.current_cipher or '— no active transmission —'
-styled_cipher = style_cipher(cipher_display)
-st.markdown(f"""
-<div style='background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px; border-radius:8px; font-family:monospace; color:#00c37a;'>
-{styled_cipher}
-</div>
-""", unsafe_allow_html=True)
+# Intercepted Transmission
+st.markdown("### Intercepted Transmission")
+st.markdown(f"<div style='background:#021413; border:1px dashed rgba(0,195,122,0.06); padding:12px; border-radius:8px; font-family:monospace;'>{st.session_state.current_cipher or '— no active transmission —'}</div>", unsafe_allow_html=True)
 
 # Stopwatch display
 if st.session_state.mission_started:
@@ -181,7 +172,7 @@ if not st.session_state.uid_loaded:
 
 # Answer input
 if st.session_state.mission_started:
-    guess = st.text_input("Enter decoded phrase (exact match):", key="guess_input")
+    guess = st.text_input("Enter decoded phrase (exact match):", key="guess_input", value="")
     if st.button("Transmit Conclusion") and st.session_state.current_entry:
         answer = st.session_state.current_entry.get("answer","").strip().lower()
         correct = guess.strip().lower() == answer
@@ -203,7 +194,7 @@ if st.session_state.mission_started:
             # Move to next level automatically
             st.session_state.level += 1
             st.session_state.mission_started = False
-            start_new_mission()  # start next mission automatically
+            start_new_mission()
             st.rerun()
         else:
             st.session_state.score = max(0, st.session_state.score - 2)
@@ -213,19 +204,15 @@ if st.session_state.mission_started:
 # Hints
 if st.button("💡 Get Hint") and st.session_state.player:
     if not st.session_state.mission_started:
-        # Stage 1: User entered codename, mission not started
         st.markdown("### Clue meanings (before mission):")
-        st.markdown(
-            """
-            **M:** Mission context  
-            **I:** Intercepted detail  
-            **P:** Physical proof  
-            **B:** Backstory  
-            **E:** Evidence
-            """
-        )
+        st.markdown("""
+        **M:** Mission context  
+        **I:** Intercepted detail  
+        **P:** Physical proof  
+        **B:** Backstory  
+        **E:** Evidence
+        """)
     else:
-        # Stage 2: Mission started, show mission-specific clues
         e = st.session_state.current_entry
         if e:
             st.markdown("### Clues for this mission:")
@@ -234,21 +221,16 @@ if st.button("💡 Get Hint") and st.session_state.player:
             st.markdown(f"**P:** {e.get('P','')}")
             st.markdown(f"**B:** {e.get('B','')}")
             st.markdown(f"**E:** {e.get('E','')}")
-    
-    # Increment hint usage and persist if mission started
+
     if st.session_state.mission_started:
         st.session_state.hint_uses += 1
         persist_user_progress(st.session_state.player)
 
 # Restart Session Button
 if st.button("♻️ Restart Session"):
-    preserved_timer = st.session_state.get("timer_mode", None)
     keys = list(st.session_state.keys())
-    for k in keys:
-        del st.session_state[k]
-    for k,v in defaults.items():
-        st.session_state[k] = v
-    st.session_state.timer_mode = preserved_timer
+    for k in keys: del st.session_state[k]
+    for k,v in defaults.items(): st.session_state[k] = v
     st.rerun()
 
 # Mission log & leaderboard
