@@ -1,18 +1,22 @@
 # cipher.py
 # -------------------------
 # Cipher engine: encoding + decoding
-# Updated: numbers output WITHOUT hyphens (e.g., 2085 instead of 20-8-5)
+# Condensed numeric output (no hyphens)
 # -------------------------
 
 import random
+
 ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+# ---------- helpers ----------
 def split_numbers(encoded):
     """
+    Deterministic greedy A1–Z26 splitter.
     Accepts:
       - "15121215"
       - "1-5-12-12-15"
     Returns list of ints.
+    Prefers two-digit numbers 10-26 when possible.
     """
     if "-" in encoded:
         try:
@@ -20,21 +24,25 @@ def split_numbers(encoded):
         except:
             pass
 
+    encoded = encoded.strip()
     numbers = []
     i = 0
-    s = encoded.strip()
-    while i < len(s):
-        if i + 1 < len(s):
-            two = int(s[i:i+2])
-            if 1 <= two <= 26:
+
+    while i < len(encoded):
+        # Try 2-digit number first (10-26)
+        if i + 1 < len(encoded):
+            two = int(encoded[i:i+2])
+            if 10 <= two <= 26:
                 numbers.append(two)
                 i += 2
                 continue
-        numbers.append(int(s[i]))
+
+        # Fall back to 1-digit
+        numbers.append(int(encoded[i]))
         i += 1
+
     return numbers
 
-# ---------- helpers ----------
 def nums_from_word_direct(word):
     return [ALPH.index(ch) + 1 for ch in word]
 
@@ -51,7 +59,7 @@ def complement_nums(nums):
 def shift_nums(nums, shift):
     return [wrap_one_to_26(n + shift) for n in nums]
 
-# ---------- encoders (NO HYPHENS) ----------
+# ---------- encoders ----------
 def direct_encode(word):
     return join_no_dash(nums_from_word_direct(word.upper()))
 
