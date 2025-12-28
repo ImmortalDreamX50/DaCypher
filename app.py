@@ -1,4 +1,4 @@
-# app.py — Cipher Missions + Firebase (FINAL, FIXED)
+# app.py — Cipher Missions + Firebase (FINAL, DISPLAY FIXED)
 
 import streamlit as st
 import json, random, time, logging, uuid
@@ -126,7 +126,8 @@ def start_new_mission():
     cipher = encode_for_level(words, st.session_state.level)
 
     st.session_state.current_entry = entry
-    st.session_state.current_cipher = " ".join(c.replace("-", "") for c in cipher.split())
+    # <-- PATCH: use raw cipher as is
+    st.session_state.current_cipher = cipher
     st.session_state.start_time = time.time()
     st.session_state.mission_started = True
     st.session_state.show_clues = False
