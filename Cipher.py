@@ -1,7 +1,6 @@
 # cipher.py
 # -------------------------
-# Cipher engine: encoding + decoding
-# Condensed numeric output (no hyphens)
+# Cipher engine: encoding + decoding (2-digit numbers)
 # -------------------------
 
 import random
@@ -9,49 +8,11 @@ import random
 ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # ---------- helpers ----------
-def split_numbers(encoded):
-    """
-    Deterministic greedy A1–Z26 splitter.
-    Accepts:
-      - "15121215"
-      - "1-5-12-12-15"
-    Returns list of ints.
-    Prefers two-digit numbers 10-26 when possible.
-    """
-    if "-" in encoded:
-        try:
-            return [int(x) for x in encoded.split("-") if x.strip().isdigit()]
-        except:
-            pass
-
-    encoded = encoded.strip()
-    numbers = []
-    i = 0
-
-    while i < len(encoded):
-        # Try 2-digit number first (10-26)
-        if i + 1 < len(encoded):
-            two = int(encoded[i:i+2])
-            if 10 <= two <= 26:
-                numbers.append(two)
-                i += 2
-                continue
-
-        # Fall back to 1-digit
-        numbers.append(int(encoded[i]))
-        i += 1
-
-    return numbers
+def wrap_one_to_26(n):
+    return ((n - 1) % 26) + 1
 
 def nums_from_word_direct(word):
     return [ALPH.index(ch) + 1 for ch in word]
-
-def join_no_dash(nums):
-    """Return numbers concatenated with no hyphens."""
-    return "".join(str(n) for n in nums)
-
-def wrap_one_to_26(n):
-    return ((n - 1) % 26) + 1
 
 def complement_nums(nums):
     return [27 - n for n in nums]
@@ -59,23 +20,31 @@ def complement_nums(nums):
 def shift_nums(nums, shift):
     return [wrap_one_to_26(n + shift) for n in nums]
 
+def join_no_dash(nums):
+    """Return numbers concatenated as 2 digits each (pad with 0)."""
+    return "".join(f"{n:02}" for n in nums)
+
+def split_numbers(encoded):
+    """Split every 2 digits into int list."""
+    encoded = encoded.strip()
+    return [int(encoded[i:i+2]) for i in range(0, len(encoded), 2)]
+
 # ---------- encoders ----------
 def direct_encode(word):
     return join_no_dash(nums_from_word_direct(word.upper()))
 
 def complement_encode(word):
-    base = nums_from_word_direct(word.upper())
-    return join_no_dash(complement_nums(base))
+    return join_no_dash(complement_nums(nums_from_word_direct(word.upper())))
 
 def comp_then_shift_encode(word, shift):
-    base = nums_from_word_direct(word.upper())
-    comp = complement_nums(base)
+    nums = nums_from_word_direct(word.upper())
+    comp = complement_nums(nums)
     shifted = shift_nums(comp, shift)
     return join_no_dash(shifted)
 
 def math_encode_direct_then_shift(word, shift):
-    base = nums_from_word_direct(word.upper())
-    shifted = shift_nums(base, shift)
+    nums = nums_from_word_direct(word.upper())
+    shifted = shift_nums(nums, shift)
     return join_no_dash(shifted)
 
 # ---------- decoders ----------
