@@ -1,7 +1,7 @@
 # cipher.py
 # -------------------------
 # Cipher engine: encoding + decoding
-# Numbers output WITHOUT hyphens (e.g., 05 19 16 → 051916)
+# Numbers output concatenated (no hyphens, no spacing)
 # -------------------------
 
 import random
@@ -10,13 +10,24 @@ ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # ---------- helpers ----------
 def split_numbers(encoded):
-    """Split concatenated numbers into integers (assume 2-digit per letter)."""
-    s = encoded.strip()
+    """
+    Accept concatenated numbers and parse them correctly:
+    e.g. "5191691514175" -> [5,19,16,9,15,14,17,5]
+    """
     nums = []
+    s = encoded.strip()
     i = 0
     while i < len(s):
-        nums.append(int(s[i:i+2]))
-        i += 2
+        # Try 2-digit number first
+        if i + 1 < len(s):
+            two = int(s[i:i+2])
+            if 1 <= two <= 26:
+                nums.append(two)
+                i += 2
+                continue
+        # fallback to single digit
+        nums.append(int(s[i]))
+        i += 1
     return nums
 
 def nums_from_word_direct(word):
@@ -31,28 +42,29 @@ def complement_nums(nums):
 def shift_nums(nums, shift):
     return [wrap_one_to_26(n + shift) for n in nums]
 
-def join_no_dash_2digit(nums):
-    return "".join(f"{n:02d}" for n in nums)
+def join_no_dash(nums):
+    """Concatenate numbers into a single string without padding"""
+    return "".join(str(n) for n in nums)
 
 # ---------- encoders ----------
 def direct_encode(word):
-    return join_no_dash_2digit(nums_from_word_direct(word.upper()))
+    return join_no_dash(nums_from_word_direct(word.upper()))
 
 def complement_encode(word):
     base = nums_from_word_direct(word.upper())
     comp = complement_nums(base)
-    return join_no_dash_2digit(comp)
+    return join_no_dash(comp)
 
 def comp_then_shift_encode(word, shift):
     base = nums_from_word_direct(word.upper())
     comp = complement_nums(base)
     shifted = shift_nums(comp, shift)
-    return join_no_dash_2digit(shifted)
+    return join_no_dash(shifted)
 
 def math_encode_direct_then_shift(word, shift):
     base = nums_from_word_direct(word.upper())
     shifted = shift_nums(base, shift)
-    return join_no_dash_2digit(shifted)
+    return join_no_dash(shifted)
 
 # ---------- decoders ----------
 def direct_decode(chunk):
