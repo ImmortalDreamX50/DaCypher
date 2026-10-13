@@ -144,6 +144,12 @@ def load_player(uid, codename):
 # =========================
 # GOOGLE OAUTH HELPERS
 # =========================
+GOOGLE_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
+
 def _google_secrets():
     try:
         return st.secrets.get("google", {})
@@ -177,7 +183,7 @@ def _google_redirect_base():
 def google_auth_url():
     flow = Flow.from_client_config(
         _google_client_config(_google_secrets()),
-        scopes=["openid", "email", "profile"],
+        scopes=GOOGLE_SCOPES,
     )
     flow.redirect_uri = _google_redirect_base()
     auth_url, state = flow.authorization_url(prompt="select_account")
@@ -217,7 +223,7 @@ def handle_google_callback():
             return
         flow = Flow.from_client_config(
             _google_client_config(secret),
-            scopes=["openid", "email", "profile"],
+            scopes=GOOGLE_SCOPES,
             code_verifier=code_verifier,
         )
         flow.redirect_uri = _google_redirect_base()
