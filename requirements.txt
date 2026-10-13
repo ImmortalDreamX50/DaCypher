@@ -1,5 +1,9 @@
 streamlit
-firebase-admin
+psycopg2-binary
+bcrypt
+google-auth
+google-auth-oauthlib
+requests
 numpy
 pandas
 python-dateutil
