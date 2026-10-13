@@ -46,15 +46,6 @@ def _ensure_schema(pool_):
                 );
                 """
             )
-cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS oauth_states (
-                    state TEXT PRIMARY KEY,
-                    code_verifier TEXT,
-                    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-                );
-                """
-            )
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS accounts (
