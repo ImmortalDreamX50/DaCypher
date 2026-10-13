@@ -274,14 +274,19 @@ def store_oauth_state(state):
     """Persist an OAuth CSRF state so it survives the browser redirect."""
     if not state:
         return
-    with _cursor(commit=True) as cur:
-        cur.execute(
-            "DELETE FROM oauth_states WHERE created_at < NOW() - INTERVAL '15 minutes';"
-        )
-        cur.execute(
-            "INSERT INTO oauth_states (state) VALUES (%s) ON CONFLICT (state) DO NOTHING;",
-            (state,),
-        )
+    try:
+        with _cursor(commit=True) as cur:
+            cur.execute(
+                "DELETE FROM oauth_states WHERE created_at < NOW() - INTERVAL '15 minutes';"
+            )
+            cur.execute(
+                "INSERT INTO oauth_states (state) VALUES (%s) ON CONFLICT (state) DO NOTHING;",
+                (state,),
+            )
+    except Exception:
+        # Best-effort: if the DB is briefly unavailable, fall back to the
+        # session-only state check rather than crashing the login page.
+        pass
 
 
 def consume_oauth_state(state):

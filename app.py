@@ -189,39 +189,43 @@ def handle_google_callback():
     if not code:
         return
 
-    state = st.query_params.get("state")
-    state_valid = (
-        state is not None
-        and (
-            state == st.session_state.get("oauth_state")
-            or consume_oauth_state(state)
+    try:
+        state = st.query_params.get("state")
+        state_valid = (
+            state is not None
+            and (
+                state == st.session_state.get("oauth_state")
+                or consume_oauth_state(state)
+            )
         )
-    )
-    if not state_valid:
-        st.error("Google sign-in failed (state mismatch). Please try again.")
+        if not state_valid:
+            st.error("Google sign-in failed (state mismatch). Please try again.")
+            _clear_oauth_params()
+            return
+
+        secret = _google_secrets()
+        flow = Flow.from_client_config(
+            _google_client_config(secret),
+            scopes=["openid", "email", "profile"],
+        )
+        flow.redirect_uri = _google_redirect_base()
+        flow.fetch_token(code=code)
+        session = flow.authorized_session()
+        info = session.get("https://www.googleapis.com/oauth2/v2/userinfo").json()
+
         _clear_oauth_params()
-        return
 
-    secret = _google_secrets()
-    flow = Flow.from_client_config(
-        _google_client_config(secret),
-        scopes=["openid", "email", "profile"],
-    )
-    flow.redirect_uri = _google_redirect_base()
-    flow.fetch_token(code=code)
-    session = flow.authorized_session()
-    info = session.get("https://www.googleapis.com/oauth2/v2/userinfo").json()
+        email = (info.get("email") or "").strip().lower()
+        if not email:
+            st.error("Could not retrieve your Google email.")
+            return
 
-    _clear_oauth_params()
-
-    email = (info.get("email") or "").strip().lower()
-    if not email:
-        st.error("Could not retrieve your Google email.")
-        return
-
-    upsert_google_account(email, str(info.get("id") or email))
-    st.session_state.auth_email = email
-    st.rerun()
+        upsert_google_account(email, str(info.get("id") or email))
+        st.session_state.auth_email = email
+        st.rerun()
+    except Exception:
+        _clear_oauth_params()
+        st.error("Google sign-in could not be completed due to a database or network problem. Please try again.")
 
 def _clear_oauth_params():
     for key in ("code", "state", "scope", "authuser", "prompt", "hd"):
@@ -335,11 +339,19 @@ if not st.session_state.auth_email:
         login_email = (login_email or "").strip().lower()
         if not validate_email(login_email):
             st.error("Enter a valid email address.")
-        elif verify_account(login_email, login_password):
-            st.session_state.auth_email = login_email
-            st.rerun()
         else:
-            st.error("Invalid email or password.")
+            try:
+                account = verify_account(login_email, login_password)
+            except Exception:
+                account = None
+                st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
+            if account:
+                st.session_state.auth_email = login_email
+                st.rerun()
+            elif not login_password:
+                st.error("Enter your password.")
+            else:
+                st.error("Invalid email or password.")
 
     st.markdown('<div class="login-sect"><h3>✍️ NEW AGENT — CREATE ACCOUNT</h3></div>', unsafe_allow_html=True)
     with st.form("register_form", clear_on_submit=False):
@@ -354,12 +366,18 @@ if not st.session_state.auth_email:
             st.error("Enter a valid email address.")
         elif not reg_password or len(reg_password) < 6:
             st.error("Password must be at least 6 characters.")
-        elif create_account(reg_email, reg_password):
-            st.session_state.auth_email = reg_email
-            st.success("Account created. Now choose your codename.")
-            st.rerun()
         else:
-            st.error("That email is already registered. Log in instead.")
+            try:
+                created = create_account(reg_email, reg_password)
+            except Exception:
+                created = False
+                st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
+            if created:
+                st.session_state.auth_email = reg_email
+                st.success("Account created. Now choose your codename.")
+                st.rerun()
+            elif not created:
+                st.error("That email is already registered. Log in instead.")
 
     st.markdown(
         '<div class="login-card" style="margin-top:14px;"><div class="login-hint">'
