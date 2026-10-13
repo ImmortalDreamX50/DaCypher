@@ -327,63 +327,77 @@ if not st.session_state.auth_email:
     else:
         st.info("Google sign-in is not configured yet.")
 
-    st.markdown('<div class="divider"><span>OR SIGN IN WITH EMAIL</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider"><span>OR CONTINUE WITH EMAIL</span></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="login-sect"><h3>🔐 AGENT LOGIN</h3></div>', unsafe_allow_html=True)
-    with st.form("email_login_form", clear_on_submit=False):
-        login_email = st.text_input("Email", key="login_email")
-        login_password = st.text_input("Password", type="password", key="login_password")
-        login_submitted = st.form_submit_button("LOG IN")
-
-    if login_submitted:
-        login_email = (login_email or "").strip().lower()
-        if not validate_email(login_email):
-            st.error("Enter a valid email address.")
-        else:
-            try:
-                account = verify_account(login_email, login_password)
-            except Exception:
-                account = None
-                st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
-            if account:
-                st.session_state.auth_email = login_email
-                st.rerun()
-            elif not login_password:
-                st.error("Enter your password.")
-            else:
-                st.error("Invalid email or password.")
-
-    st.markdown('<div class="login-sect"><h3>✍️ NEW AGENT — CREATE ACCOUNT</h3></div>', unsafe_allow_html=True)
-    with st.form("register_form", clear_on_submit=False):
-        reg_email = st.text_input("Email", key="reg_email")
-        reg_password = st.text_input("Password", type="password", key="reg_password")
-        st.caption("Minimum 6 characters. You will choose a codename after signing up.")
-        register_submitted = st.form_submit_button("CREATE ACCOUNT")
-
-    if register_submitted:
-        reg_email = (reg_email or "").strip().lower()
-        if not validate_email(reg_email):
-            st.error("Enter a valid email address.")
-        elif not reg_password or len(reg_password) < 6:
-            st.error("Password must be at least 6 characters.")
-        else:
-            try:
-                created = create_account(reg_email, reg_password)
-            except Exception:
-                created = False
-                st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
-            if created:
-                st.session_state.auth_email = reg_email
-                st.success("Account created. Now choose your codename.")
-                st.rerun()
-            elif not created:
-                st.error("That email is already registered. Log in instead.")
-
-    st.markdown(
-        '<div class="login-card" style="margin-top:14px;"><div class="login-hint">'
-        '💡 Returning agent? Your missions, progress and leaderboard standing are restored from your email.</div></div>',
-        unsafe_allow_html=True,
+    auth_mode = st.segmented_control(
+        "Account action",
+        options=["Log In", "Create Account"],
+        default="Log In",
+        label_visibility="collapsed",
     )
+
+    if auth_mode == "Create Account":
+        st.markdown('<div class="login-sect"><h3>✍️ NEW AGENT — CREATE ACCOUNT</h3></div>', unsafe_allow_html=True)
+        with st.form("register_form", clear_on_submit=False):
+            reg_email = st.text_input("Email", key="reg_email")
+            reg_password = st.text_input("Password", type="password", key="reg_password")
+            st.caption("Minimum 6 characters. You will choose a codename after signing up.")
+            register_submitted = st.form_submit_button("CREATE ACCOUNT")
+
+        if register_submitted:
+            reg_email = (reg_email or "").strip().lower()
+            if not validate_email(reg_email):
+                st.error("Enter a valid email address.")
+            elif not reg_password or len(reg_password) < 6:
+                st.error("Password must be at least 6 characters.")
+            else:
+                try:
+                    created = create_account(reg_email, reg_password)
+                except Exception:
+                    created = False
+                    st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
+                if created:
+                    st.session_state.auth_email = reg_email
+                    st.success("Account created. Now choose your codename.")
+                    st.rerun()
+                elif not created:
+                    st.error("That email is already registered. Log in instead.")
+
+        st.markdown(
+            '<div class="login-card" style="margin-top:14px;"><div class="login-hint">'
+            '💡 Already have an account? Switch to <b>Log In</b> above.</div></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown('<div class="login-sect"><h3>🔐 AGENT LOGIN</h3></div>', unsafe_allow_html=True)
+        with st.form("email_login_form", clear_on_submit=False):
+            login_email = st.text_input("Email", key="login_email")
+            login_password = st.text_input("Password", type="password", key="login_password")
+            login_submitted = st.form_submit_button("LOG IN")
+
+        if login_submitted:
+            login_email = (login_email or "").strip().lower()
+            if not validate_email(login_email):
+                st.error("Enter a valid email address.")
+            else:
+                try:
+                    account = verify_account(login_email, login_password)
+                except Exception:
+                    account = None
+                    st.error("The database is temporarily unavailable. Check your Postgres connection and try again.")
+                if account:
+                    st.session_state.auth_email = login_email
+                    st.rerun()
+                elif not login_password:
+                    st.error("Enter your password.")
+                else:
+                    st.error("Invalid email or password.")
+
+        st.markdown(
+            '<div class="login-card" style="margin-top:14px;"><div class="login-hint">'
+            '💡 New agent? Switch to <b>Create Account</b> above to register.</div></div>',
+            unsafe_allow_html=True,
+        )
 
     st.stop()
 
