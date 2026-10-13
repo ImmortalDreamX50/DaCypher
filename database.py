@@ -46,11 +46,12 @@ def _ensure_schema(pool_):
                 );
                 """
             )
-            cur.execute(
+cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS leaderboard (
-                    username TEXT PRIMARY KEY,
-                    score INTEGER NOT NULL DEFAULT 0
+                CREATE TABLE IF NOT EXISTS oauth_states (
+                    state TEXT PRIMARY KEY,
+                    code_verifier TEXT,
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW()
                 );
                 """
             )
@@ -70,8 +71,15 @@ def _ensure_schema(pool_):
                 """
                 CREATE TABLE IF NOT EXISTS oauth_states (
                     state TEXT PRIMARY KEY,
+                    code_verifier TEXT,
                     created_at TIMESTAMP NOT NULL DEFAULT NOW()
                 );
+                """
+            )
+            cur.execute(
+                """
+                ALTER TABLE oauth_states
+                ADD COLUMN IF NOT EXISTS code_verifier TEXT;
                 """
             )
         conn.commit()
@@ -270,8 +278,8 @@ def upsert_google_account(email, google_sub):
 
 # ---------- OAUTH STATE HELPERS ----------
 
-def store_oauth_state(state):
-    """Persist an OAuth CSRF state so it survives the browser redirect."""
+def store_oauth_state(state, code_verifier):
+    """Persist OAuth state and its PKCE verifier through the browser redirect."""
     if not state:
         return
     try:
@@ -280,8 +288,13 @@ def store_oauth_state(state):
                 "DELETE FROM oauth_states WHERE created_at < NOW() - INTERVAL '15 minutes';"
             )
             cur.execute(
-                "INSERT INTO oauth_states (state) VALUES (%s) ON CONFLICT (state) DO NOTHING;",
-                (state,),
+                """
+                INSERT INTO oauth_states (state, code_verifier)
+                VALUES (%s, %s)
+                ON CONFLICT (state) DO UPDATE
+                SET code_verifier = EXCLUDED.code_verifier;
+                """,
+                (state, code_verifier),
             )
     except Exception:
         # Best-effort: if the DB is briefly unavailable, fall back to the
@@ -290,10 +303,10 @@ def store_oauth_state(state):
 
 
 def consume_oauth_state(state):
-    """Verify and consume an OAuth CSRF state. Returns True if it is valid."""
+    """Consume OAuth state and return its PKCE verifier, if it was persisted."""
     with _cursor(commit=True) as cur:
         cur.execute(
-            "DELETE FROM oauth_states WHERE state = %s RETURNING state;",
+            "DELETE FROM oauth_states WHERE state = %s RETURNING state, code_verifier;",
             (state,),
         )
-        return cur.fetchone() is not None
+        return cur.fetchone()

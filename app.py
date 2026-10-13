@@ -81,6 +81,7 @@ defaults = {
     "auth_email": None,
     "codename": None,
     "oauth_state": None,
+    "oauth_code_verifier": None,
     "player": "",
     "uid": None,
     "uid_loaded": False,
@@ -181,7 +182,8 @@ def google_auth_url():
     flow.redirect_uri = _google_redirect_base()
     auth_url, state = flow.authorization_url(prompt="select_account")
     st.session_state.oauth_state = state
-    store_oauth_state(state)
+    st.session_state.oauth_code_verifier = flow.code_verifier
+    store_oauth_state(state, flow.code_verifier)
     return auth_url
 
 def handle_google_callback():
@@ -191,22 +193,32 @@ def handle_google_callback():
 
     try:
         state = st.query_params.get("state")
-        state_valid = (
-            state is not None
-            and (
-                state == st.session_state.get("oauth_state")
-                or consume_oauth_state(state)
-            )
+        session_state_valid = (
+            state is not None and state == st.session_state.get("oauth_state")
         )
+        code_verifier = st.session_state.get("oauth_code_verifier")
+        persisted_oauth_state = None
+        if state is not None and (not session_state_valid or not code_verifier):
+            persisted_oauth_state = consume_oauth_state(state)
+        state_valid = session_state_valid or persisted_oauth_state is not None
         if not state_valid:
             st.error("Google sign-in failed (state mismatch). Please try again.")
             _clear_oauth_params()
             return
 
         secret = _google_secrets()
+        if persisted_oauth_state is not None:
+            code_verifier = (
+                persisted_oauth_state.get("code_verifier") or code_verifier
+            )
+        if not code_verifier:
+            st.error("Google sign-in session expired. Please try again.")
+            _clear_oauth_params()
+            return
         flow = Flow.from_client_config(
             _google_client_config(secret),
             scopes=["openid", "email", "profile"],
+            code_verifier=code_verifier,
         )
         flow.redirect_uri = _google_redirect_base()
         flow.fetch_token(code=code)
@@ -232,6 +244,8 @@ def _clear_oauth_params():
     for key in ("code", "state", "scope", "authuser", "prompt", "hd"):
         if key in st.query_params:
             del st.query_params[key]
+    st.session_state.oauth_state = None
+    st.session_state.oauth_code_verifier = None
 
 def validate_email(email):
     return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email or ""))
