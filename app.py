@@ -122,6 +122,29 @@ from database import (
 )
 
 # =========================
+# MISSION HELPERS
+# =========================
+def pick_entry(level):
+    entries = word_bank.get(str(level), [])
+    return random.choice(entries) if entries else None
+
+
+def start_new_mission():
+    entry = pick_entry(st.session_state.level)
+    if not entry:
+        st.session_state.mission_started = False
+        return
+
+    words = [w for w in entry["answer"].upper().split() if w.isalpha()]
+    cipher = encode_for_level(words, st.session_state.level)
+
+    st.session_state.current_entry = entry
+    st.session_state.current_cipher = cipher
+    st.session_state.start_time = time.time()
+    st.session_state.mission_started = True
+    st.session_state.show_clues = False
+
+# =========================
 # USER LOADING
 # =========================
 def load_player(uid, codename):
@@ -453,29 +476,6 @@ if st.session_state.auth_email and not st.session_state.uid_loaded:
             st.rerun()
 
     st.stop()
-
-# =========================
-# MISSION HELPERS
-# =========================
-def pick_entry(level):
-    entries = word_bank.get(str(level), [])
-    return random.choice(entries) if entries else None
-
-def start_new_mission():
-    entry = pick_entry(st.session_state.level)
-    if not entry:
-        st.session_state.mission_started = False
-        return
-
-    words = [w for w in entry["answer"].upper().split() if w.isalpha()]
-    cipher = encode_for_level(words, st.session_state.level)
-
-    st.session_state.current_entry = entry
-    # <-- PATCH: use raw cipher as is
-    st.session_state.current_cipher = cipher
-    st.session_state.start_time = time.time()
-    st.session_state.mission_started = True
-    st.session_state.show_clues = False
 
 # =========================
 # HEADER
