@@ -4,6 +4,9 @@ cipher-d2ffa-firebase-adminsdk-*.json
 # Game data (contains mission answers — keep out of the public repo)
 wordbank.json
 
+# Private deployment notes (contains live credentials)
+deployment.md
+
 
 # Python cache
 __pycache__/
