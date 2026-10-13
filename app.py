@@ -116,6 +116,8 @@ from database import (
     set_codename,
     upsert_google_account,
     uid_for_email,
+    store_oauth_state,
+    consume_oauth_state,
 )
 
 # =========================
@@ -179,6 +181,7 @@ def google_auth_url():
     flow.redirect_uri = _google_redirect_base()
     auth_url, state = flow.authorization_url(prompt="select_account")
     st.session_state.oauth_state = state
+    store_oauth_state(state)
     return auth_url
 
 def handle_google_callback():
@@ -187,7 +190,14 @@ def handle_google_callback():
         return
 
     state = st.query_params.get("state")
-    if state != st.session_state.get("oauth_state"):
+    state_valid = (
+        state is not None
+        and (
+            state == st.session_state.get("oauth_state")
+            or consume_oauth_state(state)
+        )
+    )
+    if not state_valid:
         st.error("Google sign-in failed (state mismatch). Please try again.")
         _clear_oauth_params()
         return

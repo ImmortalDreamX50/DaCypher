@@ -66,6 +66,14 @@ def _ensure_schema(pool_):
                 );
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS oauth_states (
+                    state TEXT PRIMARY KEY,
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+                );
+                """
+            )
         conn.commit()
     finally:
         pool_.putconn(conn)
@@ -258,3 +266,29 @@ def upsert_google_account(email, google_sub):
             (email, google_sub, uid),
         )
     return get_account(email)
+
+
+# ---------- OAUTH STATE HELPERS ----------
+
+def store_oauth_state(state):
+    """Persist an OAuth CSRF state so it survives the browser redirect."""
+    if not state:
+        return
+    with _cursor(commit=True) as cur:
+        cur.execute(
+            "DELETE FROM oauth_states WHERE created_at < NOW() - INTERVAL '15 minutes';"
+        )
+        cur.execute(
+            "INSERT INTO oauth_states (state) VALUES (%s) ON CONFLICT (state) DO NOTHING;",
+            (state,),
+        )
+
+
+def consume_oauth_state(state):
+    """Verify and consume an OAuth CSRF state. Returns True if it is valid."""
+    with _cursor(commit=True) as cur:
+        cur.execute(
+            "DELETE FROM oauth_states WHERE state = %s RETURNING state;",
+            (state,),
+        )
+        return cur.fetchone() is not None
