@@ -1,7 +1,7 @@
 # app.py — Cipher Missions + Firebase (FINAL, DISPLAY FIXED)
 
 import streamlit as st
-import json, random, time, logging
+import json, random, time, logging, traceback
 import os
 import re
 import pandas as pd
@@ -225,7 +225,8 @@ def handle_google_callback():
         st.rerun()
     except Exception:
         _clear_oauth_params()
-        st.error("Google sign-in could not be completed due to a database or network problem. Please try again.")
+        st.error("Google sign-in could not be completed. Error details:")
+        st.code(traceback.format_exc())
 
 def _clear_oauth_params():
     for key in ("code", "state", "scope", "authuser", "prompt", "hd"):
