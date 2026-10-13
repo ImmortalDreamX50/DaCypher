@@ -237,57 +237,135 @@ def validate_email(email):
 handle_google_callback()
 
 if not st.session_state.auth_email:
-    st.markdown("## 🕵️ Agency Intel Ops — Decryption Terminal")
-    st.markdown("### 🔐 Agent Login")
-    st.markdown("Sign in to continue your missions.")
+    st.markdown("""
+    <style>
+    .login-title {
+        background: linear-gradient(135deg, #021413, #04302b);
+        color: #eafff7 !important;
+        border: 1px solid rgba(0,195,122,0.35);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        font-family: monospace;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+    }
+    .login-title .topbar { letter-spacing: 3px; font-size: 12px; color: #00c37a; }
+    .login-title h1 { color: #ffffff !important; font-size: 22px; margin: 6px 0 4px; }
+    .login-title .sub { font-size: 12px; color: #8fc8b8; }
+    .login-card {
+        background: #021413;
+        color: #eafff7 !important;
+        border: 1px solid rgba(0,195,122,0.25);
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+    }
+    .login-card h3 { color: #00c37a !important; font-family: monospace; letter-spacing: 2px; font-size: 13px; margin: 0 0 12px; }
+    .login-hint { font-size: 12px; color: #8fc8b8; margin-top: 10px; font-family: monospace; }
+    .login-sect h3 {
+        color: #00c37a !important; font-family: monospace; letter-spacing: 2px;
+        font-size: 13px; border-bottom: 1px solid rgba(0,195,122,0.3);
+        padding-bottom: 6px; margin: 16px 0 10px;
+    }
+    .g-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        background: #ffffff; color: #333333 !important; font-weight: 600;
+        font-family: Roboto, Arial, sans-serif; font-size: 15px;
+        border: 1px solid #dadce0; border-radius: 6px; padding: 10px 16px;
+        text-decoration: none; width: 100%; box-sizing: border-box;
+    }
+    .g-btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .g-btn:hover { background: #f7f9fc; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+    .divider { display: flex; align-items: center; color: #6b7c77; margin: 16px 0; font-family: monospace; font-size: 12px; letter-spacing: 1px; }
+    .divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid rgba(0,195,122,0.25); }
+    .divider span { padding: 0 10px; }
+    .stButton > button, .stFormSubmitButton > button {
+        width: 100%; background: #00c37a; color: #021413; font-weight: 700;
+        border: none; border-radius: 6px; padding: 0.6rem 1rem; letter-spacing: 1px;
+    }
+    .stButton > button:hover, .stFormSubmitButton > button:hover { background: #00d68a; color: #021413; }
+    .stTextInput input {
+        background: #03201d; color: #ffffff;
+        border: 1px solid rgba(0,195,122,0.35); border-radius: 6px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    tab_email, tab_google = st.tabs(["Email", "Google"])
+    st.markdown("""
+    <div class="login-title">
+        <div class="topbar">// AGENCY INTELLIGENCE NETWORK</div>
+        <h1>🕵️ Agency Intel Ops — Decryption Terminal</h1>
+        <div class="sub">Agent identity verification required to access the terminal.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with tab_email:
-        with st.form("email_login_form", clear_on_submit=False):
-            login_email = st.text_input("Email", key="login_email")
-            login_password = st.text_input("Password", type="password", key="login_password")
-            login_submitted = st.form_submit_button("Log In")
+    goog_svg = """<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>"""
 
-        if login_submitted:
-            login_email = (login_email or "").strip().lower()
-            if not validate_email(login_email):
-                st.error("Enter a valid email address.")
-            elif verify_account(login_email, login_password):
-                st.session_state.auth_email = login_email
-                st.rerun()
-            else:
-                st.error("Invalid email or password.")
+    try:
+        google_configured = bool(
+            _google_secrets().get("client_id")
+            and _google_secrets().get("client_secret")
+        )
+    except Exception:
+        google_configured = False
 
-        st.markdown("**New agent? Register below.**")
-        with st.form("register_form", clear_on_submit=False):
-            reg_email = st.text_input("Email", key="reg_email")
-            reg_password = st.text_input("Password", type="password", key="reg_password")
-            register_submitted = st.form_submit_button("Create Account")
+    if google_configured:
+        st.markdown(
+            f"""
+            <div class="login-card">
+                <h3>⚡ SIGN IN WITH GOOGLE — INSTANT ACCESS</h3>
+                <a class="g-btn" href="{google_auth_url()}">{goog_svg}Continue with Google</a>
+                <div class="login-hint">Authenticate with your Gmail account. No password needed.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("Google sign-in is not configured yet.")
 
-        if register_submitted:
-            reg_email = (reg_email or "").strip().lower()
-            if not validate_email(reg_email):
-                st.error("Enter a valid email address.")
-            elif not reg_password or len(reg_password) < 6:
-                st.error("Password must be at least 6 characters.")
-            elif create_account(reg_email, reg_password):
-                st.session_state.auth_email = reg_email
-                st.success("Account created. Now choose your codename.")
-                st.rerun()
-            else:
-                st.error("That email is already registered. Log in instead.")
+    st.markdown('<div class="divider"><span>OR SIGN IN WITH EMAIL</span></div>', unsafe_allow_html=True)
 
-    with tab_google:
-        st.markdown("Sign in with your Google account. No password needed.")
-        try:
-            google_secret = _google_secrets()
-            if not (google_secret.get("client_id") and google_secret.get("client_secret")):
-                st.info("Google sign-in is not configured yet.")
-            else:
-                st.link_button("Sign in with Google", google_auth_url())
-        except Exception:
-            st.info("Google sign-in is not configured yet.")
+    st.markdown('<div class="login-sect"><h3>🔐 AGENT LOGIN</h3></div>', unsafe_allow_html=True)
+    with st.form("email_login_form", clear_on_submit=False):
+        login_email = st.text_input("Email", key="login_email")
+        login_password = st.text_input("Password", type="password", key="login_password")
+        login_submitted = st.form_submit_button("LOG IN")
+
+    if login_submitted:
+        login_email = (login_email or "").strip().lower()
+        if not validate_email(login_email):
+            st.error("Enter a valid email address.")
+        elif verify_account(login_email, login_password):
+            st.session_state.auth_email = login_email
+            st.rerun()
+        else:
+            st.error("Invalid email or password.")
+
+    st.markdown('<div class="login-sect"><h3>✍️ NEW AGENT — CREATE ACCOUNT</h3></div>', unsafe_allow_html=True)
+    with st.form("register_form", clear_on_submit=False):
+        reg_email = st.text_input("Email", key="reg_email")
+        reg_password = st.text_input("Password", type="password", key="reg_password")
+        st.caption("Minimum 6 characters. You will choose a codename after signing up.")
+        register_submitted = st.form_submit_button("CREATE ACCOUNT")
+
+    if register_submitted:
+        reg_email = (reg_email or "").strip().lower()
+        if not validate_email(reg_email):
+            st.error("Enter a valid email address.")
+        elif not reg_password or len(reg_password) < 6:
+            st.error("Password must be at least 6 characters.")
+        elif create_account(reg_email, reg_password):
+            st.session_state.auth_email = reg_email
+            st.success("Account created. Now choose your codename.")
+            st.rerun()
+        else:
+            st.error("That email is already registered. Log in instead.")
+
+    st.markdown(
+        '<div class="login-card" style="margin-top:14px;"><div class="login-hint">'
+        '💡 Returning agent? Your missions, progress and leaderboard standing are restored from your email.</div></div>',
+        unsafe_allow_html=True,
+    )
 
     st.stop()
 
