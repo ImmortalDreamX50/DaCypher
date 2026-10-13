@@ -1,4 +1,5 @@
 import os
+import logging
 import uuid as uuidlib
 from contextlib import contextmanager
 
@@ -269,12 +270,31 @@ def upsert_google_account(email, google_sub):
 
 # ---------- OAUTH STATE HELPERS ----------
 
+def _ensure_oauth_state_schema(cur):
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS oauth_states (
+            state TEXT PRIMARY KEY,
+            code_verifier TEXT,
+            created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+        """
+    )
+    cur.execute(
+        """
+        ALTER TABLE oauth_states
+        ADD COLUMN IF NOT EXISTS code_verifier TEXT;
+        """
+    )
+
+
 def store_oauth_state(state, code_verifier):
     """Persist OAuth state and its PKCE verifier through the browser redirect."""
     if not state:
         return
     try:
         with _cursor(commit=True) as cur:
+            _ensure_oauth_state_schema(cur)
             cur.execute(
                 "DELETE FROM oauth_states WHERE created_at < NOW() - INTERVAL '15 minutes';"
             )
@@ -290,12 +310,13 @@ def store_oauth_state(state, code_verifier):
     except Exception:
         # Best-effort: if the DB is briefly unavailable, fall back to the
         # session-only state check rather than crashing the login page.
-        pass
+        logging.exception("Could not persist Google OAuth state.")
 
 
 def consume_oauth_state(state):
     """Consume OAuth state and return its PKCE verifier, if it was persisted."""
     with _cursor(commit=True) as cur:
+        _ensure_oauth_state_schema(cur)
         cur.execute(
             "DELETE FROM oauth_states WHERE state = %s RETURNING state, code_verifier;",
             (state,),
